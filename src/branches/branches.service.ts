@@ -122,20 +122,21 @@ export class BranchesService {
     const productBranch = await this.productBranchRepo.findOneBy({ id });
     const oldStock = productBranch.stock;
     const newStock = updateProductDto.stock;
-    if(oldStock < newStock){
+    if (oldStock < newStock) {
       const quantityToDiscount = newStock - oldStock;
-      const product = await this.productRepo.findOneBy({id: productBranch.productId});
+      const product = await this.productRepo.findOneBy({
+        id: productBranch.productId,
+      });
       const newProductStock = product.stock - quantityToDiscount;
-      if(newProductStock >= 0){
-        product.stock=newProductStock;
+      if (newProductStock >= 0) {
+        product.stock = newProductStock;
         await this.productRepo.save(product);
-      }else{
-        throw new BadRequestException("Insufficient stock")
+      } else {
+        throw new BadRequestException('Insufficient stock');
       }
     }
     this.productBranchRepo.merge(productBranch, updateProductDto);
-    if(updateProductDto.stock){
-
+    if (updateProductDto.stock) {
     }
     return this.productBranchRepo.save(productBranch);
   }
@@ -166,13 +167,13 @@ export class BranchesService {
         },
       };
     }
-    if(stock){
+    if (stock) {
       where.stock = MoreThan(stock);
     }
-    
+
     where.branchId = id;
     const products = await this.productBranchRepo.find({
-      where
+      where,
     });
     return products;
   }

@@ -14,22 +14,29 @@ import { Product } from 'src/products/entities/product.entity';
 export class SalesService {
   constructor(
     @InjectRepository(Sale) private saleRepository: Repository<Sale>,
-    @InjectRepository(SaleDetails) private saleDetailsRepository: Repository<SaleDetails>,
-    @InjectRepository(ProductBranch) private productBranchRepository: Repository<ProductBranch>,
+    @InjectRepository(SaleDetails)
+    private saleDetailsRepository: Repository<SaleDetails>,
+    @InjectRepository(ProductBranch)
+    private productBranchRepository: Repository<ProductBranch>,
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Branch) private branchRepository: Repository<Branch>,
-    @InjectRepository(Product) private productRepository: Repository<Product>
-  ){}
+    @InjectRepository(Product) private productRepository: Repository<Product>,
+  ) {}
   async create(createSaleDto: CreateSaleDto) {
-    const productsFormated: ISaleDetailsProduct[] = JSON.parse(createSaleDto.productsString);
+    const productsFormated: ISaleDetailsProduct[] = JSON.parse(
+      createSaleDto.productsString,
+    );
     let totalCost = 0;
     for await (const item of productsFormated) {
-      const productBranch = await this.productBranchRepository.createQueryBuilder()
-      .where("branch_id = :branchId", {branchId: createSaleDto.branchId})
-      .andWhere("product_id = :productId", {productId: item.product})
-      .getOne();
+      const productBranch = await this.productBranchRepository
+        .createQueryBuilder()
+        .where('branch_id = :branchId', { branchId: createSaleDto.branchId })
+        .andWhere('product_id = :productId', { productId: item.product })
+        .getOne();
 
-      const product = await this.productRepository.findOneBy({id: productBranch.productId});
+      const product = await this.productRepository.findOneBy({
+        id: productBranch.productId,
+      });
       item.total = item.quantity * productBranch.price;
       item.price = productBranch.price;
       totalCost += item.total;
@@ -39,9 +46,19 @@ export class SalesService {
       await this.productBranchRepository.save(productBranch);
     }
     const products = await this.saleDetailsRepository.save(productsFormated);
-    const user = await this.userRepository.findOneBy({id: createSaleDto.userId});
-    const branch = await this.branchRepository.findOneBy({id: createSaleDto.branchId});
-    const saleData = {total: totalCost, paymentType: createSaleDto.paymentType, products, branch, user} ;
+    const user = await this.userRepository.findOneBy({
+      id: createSaleDto.userId,
+    });
+    const branch = await this.branchRepository.findOneBy({
+      id: createSaleDto.branchId,
+    });
+    const saleData = {
+      total: totalCost,
+      paymentType: createSaleDto.paymentType,
+      products,
+      branch,
+      user,
+    };
     const newSale = await this.saleRepository.save(saleData);
     return newSale;
   }
@@ -51,7 +68,7 @@ export class SalesService {
   }
 
   async findOne(id: string) {
-    const sale = await this.saleRepository.findOneBy({id});
+    const sale = await this.saleRepository.findOneBy({ id });
     this.validationExist(sale, id);
     return sale;
   }
@@ -69,18 +86,18 @@ export class SalesService {
     return { message: `Sale with id: ${id} deleted succesfully` };
   }
 
-  async getSalesByBranch(branchId: string){
+  async getSalesByBranch(branchId: string) {
     const start = new Date();
     start.setHours(0, 0, 0, 0);
     const end = new Date(start);
     end.setDate(start.getDate() + 1);
     const branchSales = await this.saleRepository.find({
-      order: {createAt: 'ASC'},
+      order: { createAt: 'ASC' },
       where: {
-        branch: {id: branchId},
-        createAt: Between(start,end)
-      }
-    })
+        branch: { id: branchId },
+        createAt: Between(start, end),
+      },
+    });
     return branchSales;
   }
 

@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from '../entities/category.entity';
 import { Repository } from 'typeorm';
@@ -8,9 +12,8 @@ import { CreateCategoryDto, UpdateCategoryDto } from '../dto/categories.dto';
 export class CategoriesService {
   constructor(
     @InjectRepository(Category) private categoryRepo: Repository<Category>,
-  ) { }
+  ) {}
   async create(createCategoryDto: CreateCategoryDto) {
-
     const existCategory = await this.categoryRepo.findOne({
       where: {
         name: createCategoryDto.name,
@@ -30,7 +33,7 @@ export class CategoriesService {
 
   async findOne(id: string) {
     const category = await this.categoryRepo.findOneBy({
-      id
+      id,
     });
     this.validationExist(category, id);
     return category;
@@ -38,7 +41,7 @@ export class CategoriesService {
 
   async update(id: string, changes: UpdateCategoryDto) {
     const category = await this.categoryRepo.findOneBy({
-      id
+      id,
     });
     this.validationExist(category, id);
     this.categoryRepo.merge(category, changes);
@@ -47,7 +50,7 @@ export class CategoriesService {
 
   async remove(id: string) {
     const category = await this.categoryRepo.findOneBy({
-      id
+      id,
     });
     this.validationExist(category, id);
     await this.categoryRepo.delete(id);
