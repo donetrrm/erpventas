@@ -10,9 +10,12 @@ import {
   Min,
   isNotEmpty,
   IsDate,
+  ValidateIf,
 } from 'class-validator';
 import { Category } from '../entities/category.entity';
 import { ReadCategoryDto } from './categories.dto';
+import { Timestamp } from 'typeorm';
+import { IsFutureDate } from '../decorators/product-expiration.decorator';
 
 export class CreateProductDto {
   @IsString()
@@ -52,9 +55,10 @@ export class CreateProductDto {
 
   @IsNotEmpty()
   @IsDate()
+  @IsFutureDate()
   @ApiProperty({
     description: 'Expiration date',
-    example: '2022-05-13T00:35:51.003Z',
+    example: '2025-05-13T00:35:51.003Z',
   })
   readonly product_expiration: Date;
 }
@@ -89,13 +93,15 @@ export class ReadProductDto {
     example: '2022-05-13T00:35:51.003Z',
   })
   updateAt: Date;
-  @ApiProperty({ description: 'Category of product', example: Category })
-  category: ReadCategoryDto;
+
   @ApiProperty({
     description: 'Expiration date',
     example: '2022-05-13T00:35:51.003Z',
   })
   product_expiration: Date;
+
+  @ApiProperty({ description: 'Category of product', example: Category })
+  category: ReadCategoryDto;
 }
 
 export class ResponseFilterProducts {

@@ -20,14 +20,15 @@ export class ProductBranch {
 
   @Column({ name: 'branch_id' })
   public branchId: string;
-  @Column({ type: 'text', name: 'product_expiration' })
-  expiration: string;
 
   @Column()
   public stock: number;
 
   @Column()
   public price: number;
+
+  @Column({ type: Date, name: 'product_expiration' })
+  product_expiration: Date;
 
   @CreateDateColumn()
   created_at: Date;

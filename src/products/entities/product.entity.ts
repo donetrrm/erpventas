@@ -35,8 +35,8 @@ export class Product {
   @Column({ type: 'text', name: 'image' })
   image: string;
 
-  @Column({ type: 'text', name: 'product_expiration' })
-  expiration: string;
+  @Column({ type: Date, name: 'product_expiration' })
+  product_expiration: Date;
 
   @ManyToOne(() => Category, (category) => category.product, {
     nullable: false,

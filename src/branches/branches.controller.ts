@@ -234,6 +234,7 @@ export class BranchesController {
           product_id: '4ff45e7c-6d05-400f-ad79-fcc8a85818fb',
           stock: 10,
           price: 120,
+          product_expiration: '2022-05-13T00:35:51.003Z',
         },
       },
     },
@@ -253,6 +254,7 @@ export class BranchesController {
             value: {
               stock: 10,
               price: 120,
+              product_expiration: '2022-05-13T00:35:51.003Z',
               branch: {
                 id: 'e1368084-c0dc-4345-8c55-ebee6fce71cc',
                 name: 'Sucursal Suchiapa',
@@ -267,6 +269,7 @@ export class BranchesController {
                 stock: -10,
                 price: 120,
                 cost: 240,
+                product_expiration: '2022-05-13T00:35:51.003Z',
                 image: 'imagen.jpg',
                 createAt: '2024-08-13T10:05:13.949Z',
                 updateAt: '2024-08-13T12:00:08.000Z',
@@ -314,6 +317,7 @@ export class BranchesController {
           product_id: '4ff45e7c-6d05-400f-ad79-fcc8a85818fb',
           stock: 10,
           price: 120,
+          product_expiration: '2022-05-13T00:35:51.003Z',
         },
       },
     },
@@ -336,6 +340,7 @@ export class BranchesController {
               branchId: 'e1368084-c0dc-4345-8c55-ebee6fce71cc',
               stock: 8,
               price: 120,
+              product_expiration: '2022-05-13T00:35:51.003Z',
               created_at: '2024-08-13T12:00:07.406Z',
               updated_at: '2024-08-13T12:24:03.000Z',
               product: {
@@ -346,6 +351,7 @@ export class BranchesController {
                 price: 120,
                 cost: 240,
                 image: 'imagen.jpg',
+                product_expiration: '2022-05-13T00:35:51.003Z',
                 createAt: '2024-08-13T10:05:13.949Z',
                 updateAt: '2024-08-13T12:14:26.145Z',
                 category: {
@@ -363,6 +369,7 @@ export class BranchesController {
       },
     },
   })
+  @ApiBadRequestResponse({ description: 'Product has already expired' })
   updateProduct(
     @Param('id') id: string,
     @Body() updateProductBranchDto: UpdateProductBranchDto,
@@ -387,7 +394,7 @@ export class BranchesController {
             summary: 'Basic example',
             description: 'A basic response with product deleted',
             value: {
-              message: 'Product deleted succesfully',
+              message: 'Product (id) deleted succesfully',
             },
           },
         },
@@ -420,6 +427,7 @@ export class BranchesController {
               branchId: 'e1368084-c0dc-4345-8c55-ebee6fce71cc',
               stock: 8,
               price: 120,
+              product_expiration: '2022-05-13T00:35:51.003Z',
               created_at: '2024-08-13T12:00:07.406Z',
               updated_at: '2024-08-13T12:24:03.000Z',
               product: {
@@ -430,6 +438,7 @@ export class BranchesController {
                 price: 120,
                 cost: 240,
                 image: 'imagen.jpg',
+                product_expiration: '2022-05-13T00:35:51.003Z',
                 createAt: '2024-08-13T10:05:13.949Z',
                 updateAt: '2024-08-13T12:14:26.145Z',
                 category: {
@@ -474,6 +483,7 @@ export class BranchesController {
                 branchId: 'e1368084-c0dc-4345-8c55-ebee6fce71cc',
                 stock: 8,
                 price: 120,
+                product_expiration: '2022-05-13T00:35:51.003Z',
                 created_at: '2024-08-13T12:00:07.406Z',
                 updated_at: '2024-08-13T12:24:03.000Z',
                 product: {
@@ -484,6 +494,7 @@ export class BranchesController {
                   price: 120,
                   cost: 240,
                   image: 'imagen.jpg',
+                  product_expiration: '2022-05-13T00:35:51.003Z',
                   createAt: '2024-08-13T10:05:13.949Z',
                   updateAt: '2024-08-13T12:14:26.145Z',
                   category: {

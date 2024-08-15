@@ -236,6 +236,7 @@ export class ProductsController {
     },
   })
   @ApiNotFoundResponse({ description: 'Product not found' })
+  @ApiBadRequestResponse({ description: 'Product has already expired' })
   @ApiOkResponse({
     description: 'Updates a product by ID',
     content: {

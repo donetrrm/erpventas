@@ -27,7 +27,6 @@ export class ProductsService {
   ) {}
   async create(data: CreateProductDto) {
     const existProduct = await this.productRepo.findOneBy({ name: data.name });
-
     if (existProduct) {
       throw new BadRequestException('Product already exists');
     }
