@@ -7,14 +7,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Resupply } from 'src/branches/entities/resupply.entity';
 import { CreateResupplyDto } from '../dto/create-resupply.dto';
-import { UpdateResupplyDto } from '../dto/update-resupply.dto';
 import { ResupplyDetails } from 'src/branches/entities/resupply-details.entity';
 import { Product } from 'src/products/entities/product.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Branch } from 'src/branches/entities/branch.entity';
 import { ProductBranch } from 'src/products/entities/products-branch.entity';
 import { AddProductBranchDto } from 'src/branches/dto/branches.dto';
-import { Console } from 'console';
 
 @Injectable()
 export class ResupplyService {
@@ -114,7 +112,6 @@ export class ResupplyService {
           cost: globalProduct.cost,
           product: { id: product.productId },
         });
-        console.log('New resupply detail:', resupplySaved);
         return resupplySaved;
       }),
     );
@@ -172,7 +169,8 @@ export class ResupplyService {
     const query = this.resupplyRepository
       .createQueryBuilder('resupply')
       .leftJoinAndSelect('resupply.products', 'products')
-      .leftJoinAndSelect('products.product', 'product');
+      .leftJoinAndSelect('products.product', 'product')
+      .leftJoinAndSelect('resupply.branch', 'branch');
 
     if (branchId) {
       query.andWhere('resupply.branch.id = :branchId', { branchId });
