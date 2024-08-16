@@ -11,6 +11,7 @@ import config from './config';
 import * as Joi from 'joi';
 import { AuthModule } from './auth/auth.module';
 import { ReportsModule } from './reports/reports.module';
+import { ResupplyModule } from './resupply/resupply.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ReportsModule } from './reports/reports.module';
     SalesModule,
     AuthModule,
     ReportsModule,
+    ResupplyModule,
   ],
   controllers: [AppController],
   providers: [AppService],
