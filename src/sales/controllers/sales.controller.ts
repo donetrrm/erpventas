@@ -110,8 +110,15 @@ export class SalesController {
     },
   })
   @ApiNotFoundResponse({ description: 'Sale not found' })
-  @Get('branch/:branchId')
+  @Delete(':id')
+  @Roles(Role.ADMIN)
+  remove(@Param('id') id: string) {
+    return this.salesService.remove(id);
+  }
+
   @Roles(Role.ADMIN, Role.CUSTOMER)
+  @ApiBearerAuth()
+  @Get('branch/:branchId')
   getSalesByBranch(@Param('branchId') branchId: string) {
     return this.salesService.getSalesByBranch(branchId);
   }
