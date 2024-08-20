@@ -188,7 +188,7 @@ export class ResupplyService {
 
     const resupplyList = await this.resupplyRepository.find({
       where: whereConditions,
-      relations: ['products', 'products.product'],
+      relations: ['products', 'products.product', 'branch'],
     });
 
     return resupplyList;
