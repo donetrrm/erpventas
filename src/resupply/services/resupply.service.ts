@@ -3,8 +3,8 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { Between, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Resupply } from 'src/branches/entities/resupply.entity';
 import { CreateResupplyDto } from '../dto/create-resupply.dto';
 import { ResupplyDetails } from 'src/branches/entities/resupply-details.entity';
@@ -160,31 +160,38 @@ export class ResupplyService {
 
     await this.resupplyRepository.delete(id);
   }
-
   async findAll(
     startDate?: Date,
     endDate?: Date,
     branchId?: string,
   ): Promise<Resupply[]> {
-    const query = this.resupplyRepository
-      .createQueryBuilder('resupply')
-      .leftJoinAndSelect('resupply.products', 'products')
-      .leftJoinAndSelect('products.product', 'product')
-      .leftJoinAndSelect('resupply.branch', 'branch');
+    const start = startDate ? new Date(startDate) : undefined;
+    const end = endDate ? new Date(endDate) : undefined;
+
+    if (end) {
+      end.setDate(end.getDate() + 1);
+    }
+
+    const whereConditions: any = {};
 
     if (branchId) {
-      query.andWhere('resupply.branch.id = :branchId', { branchId });
+      whereConditions.branch = { id: branchId };
     }
 
-    if (startDate) {
-      query.andWhere('resupply.createAt >= :startDate', { startDate });
+    if (start && end) {
+      whereConditions.createAt = Between(start, end);
+    } else if (start) {
+      whereConditions.createAt = MoreThanOrEqual(start);
+    } else if (end) {
+      whereConditions.createAt = LessThanOrEqual(end);
     }
 
-    if (endDate) {
-      query.andWhere('resupply.createAt <= :endDate', { endDate });
-    }
+    const resupplyList = await this.resupplyRepository.find({
+      where: whereConditions,
+      relations: ['products', 'products.product'],
+    });
 
-    return query.getMany();
+    return resupplyList;
   }
 
   async verifyProductByID(id: string): Promise<Product> {
