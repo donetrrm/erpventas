@@ -7,6 +7,7 @@ import {
   Delete,
   Put,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { SalesService } from '../services/sales.service';
 import { CreateSaleDto, UpdateSaleDto } from '../dto/sale.dtos';
@@ -22,6 +23,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { GetSalesCutDto } from '../dto/get-sales-cut.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth('jwt')
@@ -112,5 +114,56 @@ export class SalesController {
   @Roles(Role.ADMIN, Role.CUSTOMER)
   getSalesByBranch(@Param('branchId') branchId: string) {
     return this.salesService.getSalesByBranch(branchId);
+  }
+
+  @Roles(Role.ADMIN, Role.CUSTOMER)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Method to get the sales cut by date.' })
+  @ApiOkResponse({
+    description: 'Sales cut by date',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          items: {},
+        },
+        example: {
+          reportDate: '2024-08-20T21:53:29.586Z',
+          totalCash: 60,
+          totalTransfer: 1450,
+          totalSales: 1510,
+          salesReport: [
+            {
+              saleDate: '2024-04-03T04:21:41.964Z',
+              products: [
+                {
+                  productName: 'INS PRE Entreno Servicio sobre',
+                  quantity: 3,
+                  price: 20,
+                },
+              ],
+              paymentType: 'EFECTIVO',
+              saleTotal: 60,
+            },
+            {
+              saleDate: '2024-04-03T04:22:17.969Z',
+              products: [
+                {
+                  productName: 'DYM ISO 100 5 LBS',
+                  quantity: 1,
+                  price: 1450,
+                },
+              ],
+              paymentType: 'TRANSFERENCIA',
+              saleTotal: 1450,
+            },
+          ],
+        },
+      },
+    },
+  })
+  @Get('cut/:date')
+  async getSalesReport(@Query() getSalesCutDto: GetSalesCutDto) {
+    return this.salesService.getSalesCut(getSalesCutDto);
   }
 }

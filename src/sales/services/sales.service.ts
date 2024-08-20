@@ -9,6 +9,7 @@ import { ISaleDetailsProduct } from '../interfaces/sale-details-product.interfac
 import { User } from 'src/users/entities/user.entity';
 import { Branch } from 'src/branches/entities/branch.entity';
 import { Product } from 'src/products/entities/product.entity';
+import { GetSalesCutDto } from '../dto/get-sales-cut.dto';
 
 @Injectable()
 export class SalesService {
@@ -106,4 +107,65 @@ export class SalesService {
       throw new NotFoundException(`Sale #${id} not found`);
     }
   };
+
+  async getSalesCut(saleCut: GetSalesCutDto) {
+    const start = new Date(saleCut.date);
+    start.setUTCHours(0, 0, 0, 0);
+    const end = new Date(start);
+    end.setUTCDate(start.getUTCDate() + 1);
+
+    console.log('start', start);
+    console.log('end', end);
+
+    const branchSales = await this.saleRepository.find({
+      where: {
+        branch: { id: saleCut.branchId },
+        createAt: Between(start, end),
+      },
+      relations: ['products', 'products.product'],
+      order: { createAt: 'ASC' },
+    });
+
+    if (branchSales.length === 0) {
+      throw new NotFoundException(
+        `No sales found for branch ID ${saleCut.branchId} on the date: ${saleCut.date}`,
+      );
+    }
+
+    let totalCash = 0;
+    let totalTransfer = 0;
+    let totalSales = 0;
+
+    const salesReport = branchSales.map((sale) => {
+      const productsSold = sale.products.map((productDetail) => ({
+        productName: productDetail.product.name,
+        quantity: productDetail.quantity,
+        price: productDetail.price,
+      }));
+
+      const saleTotal = sale.total;
+      totalSales += saleTotal;
+
+      if (sale.paymentType === 'EFECTIVO') {
+        totalCash += saleTotal;
+      } else if (sale.paymentType === 'TRANSFERENCIA') {
+        totalTransfer += saleTotal;
+      }
+
+      return {
+        saleDate: sale.createAt,
+        products: productsSold,
+        paymentType: sale.paymentType,
+        saleTotal: saleTotal,
+      };
+    });
+
+    return {
+      reportDate: new Date(),
+      totalCash,
+      totalTransfer,
+      totalSales,
+      salesReport,
+    };
+  }
 }
