@@ -24,6 +24,8 @@ import {
 import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { GetSalesCutDto } from '../dto/get-sales-cut.dto';
+import { CreateCashStartDto } from '../dto/create-cash-start.dto';
+import { CreateCashWithdrawalDto } from '../dto/create-cash-withdrawal.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth('jwt')
@@ -172,5 +174,48 @@ export class SalesController {
   @Get('cut/:date')
   async getSalesReport(@Query() getSalesCutDto: GetSalesCutDto) {
     return this.salesService.getSalesCut(getSalesCutDto);
+  }
+
+  //branch cash endpoints
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Method to start the cash.' })
+  @Roles(Role.ADMIN, Role.CUSTOMER)
+  @Post('cash/start')
+  async startCash(@Body() createCashStartDto: CreateCashStartDto) {
+    const { initialAmount, branchId, userId } = createCashStartDto;
+    return this.salesService.startCash(initialAmount, branchId, userId);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Method to withdraw cash.' })
+  @Roles(Role.ADMIN)
+  @Post('money/withdraw')
+  async withdrawCash(@Body() createCashWithdrawalDto: CreateCashWithdrawalDto) {
+    const { amount, concept, branchId, userId } = createCashWithdrawalDto;
+    return this.salesService.withdrawCash(amount, concept, branchId, userId);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Method to get the cash for the day.' })
+  @Roles(Role.ADMIN, Role.CUSTOMER)
+  @Get('money/today')
+  async getCashForTheDay(@Query('branchId') branchId: string) {
+    return this.salesService.getCashForTheDay(branchId);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Method to get the transfers for the day.' })
+  @Roles(Role.ADMIN, Role.CUSTOMER)
+  @Get('money/transfers')
+  async getTransfersForTheDay(@Query('branchId') branchId: string) {
+    return this.salesService.getTransfersForTheDay(branchId);
+  }
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Method to get the total money.' })
+  @Roles(Role.ADMIN)
+  @Get('money/total')
+  async getTotalCash(@Query('branchId') branchId: string) {
+    return this.salesService.getTotalCash(branchId);
   }
 }

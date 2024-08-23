@@ -6,10 +6,12 @@ import {
   Entity,
   JoinColumn,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Sale } from '../../sales/entities/sale.entity';
+import { BranchCash } from '../../sales/entities/branch-cash.entity';
 
 @Entity()
 export class Branch {
@@ -43,6 +45,12 @@ export class Branch {
   })
   @JoinColumn({ referencedColumnName: 'branch_id' })
   sales: Sale[];
+
+  @OneToOne(() => BranchCash, (branchCash) => branchCash.branch, {
+    cascade: true,
+    eager: true,
+  })
+  branchCash: BranchCash;
 
   @CreateDateColumn({
     type: 'timestamp',

@@ -8,16 +8,24 @@ import { User } from 'src/users/entities/user.entity';
 import { SaleDetails } from './entities/sale-details.entity';
 import { Sale } from './entities/sale.entity';
 import { ProductBranch } from 'src/products/entities/products-branch.entity';
+import { BranchCash } from './entities/branch-cash.entity';
+import { CashStart } from './entities/cash-start.entity';
+import { CashWithdrawal } from './entities/cash-withdrawal.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([
-    User,
-    Branch,
-    Product,
-    Sale,
-    SaleDetails,
-    ProductBranch
-  ])],
+  imports: [
+    TypeOrmModule.forFeature([
+      User,
+      Branch,
+      Product,
+      Sale,
+      SaleDetails,
+      ProductBranch,
+      BranchCash,
+      CashStart,
+      CashWithdrawal,
+    ]),
+  ],
   controllers: [SalesController],
   providers: [SalesService],
 })

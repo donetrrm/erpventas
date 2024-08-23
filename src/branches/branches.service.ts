@@ -16,6 +16,7 @@ import { ProductBranch } from 'src/products/entities/products-branch.entity';
 import { ProductsService } from 'src/products/services/products.service';
 import { FilterProducts } from 'src/products/dto/products.dto';
 import { Product } from 'src/products/entities/product.entity';
+import { BranchCash } from '../sales/entities/branch-cash.entity';
 
 @Injectable()
 export class BranchesService {
@@ -25,19 +26,33 @@ export class BranchesService {
     private productBranchRepo: Repository<ProductBranch>,
     private readonly productService: ProductsService,
     @InjectRepository(Product) private productRepo: Repository<Product>,
+    @InjectRepository(BranchCash)
+    private branchCashRepo: Repository<BranchCash>,
   ) {}
   async create(createBranchDto: CreateBranchDto) {
     const existBranch = await this.branchRepo.findOne({
       where: {
-        name: CreateBranchDto.name,
+        name: createBranchDto.name,
       },
     });
 
     if (existBranch) {
       throw new BadRequestException('Branch already exists');
     }
+
     const newBranch = this.branchRepo.create(createBranchDto);
-    return this.branchRepo.save(newBranch);
+    const savedBranch = await this.branchRepo.save(newBranch);
+
+    const newBranchCash = this.branchCashRepo.create({
+      branch: savedBranch,
+      totalCash: 0,
+    });
+    await this.branchCashRepo.save(newBranchCash);
+
+    savedBranch.branchCash = newBranchCash;
+    await this.branchRepo.save(savedBranch);
+
+    return savedBranch;
   }
 
   findAll() {
