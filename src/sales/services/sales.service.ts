@@ -139,7 +139,7 @@ export class SalesService {
         branch: { id: saleCut.branchId },
         createAt: Between(start, end),
       },
-      relations: ['products', 'products.product'],
+      relations: ['products', 'products.product', 'branch'],
       order: { createAt: 'ASC' },
     });
 
@@ -174,6 +174,7 @@ export class SalesService {
         products: productsSold,
         paymentType: sale.paymentType,
         saleTotal: saleTotal,
+        branch: sale.branch,
       };
     });
 

@@ -36,7 +36,7 @@ export class ResupplyService {
     private readonly productBranchRepository: Repository<ProductBranch>,
   ) {}
 
-  async create(createResupplyDto: CreateResupplyDto): Promise<Resupply> {
+  async create(createResupplyDto: CreateResupplyDto): Promise<any> {
     const { products, userId, branchId } = createResupplyDto;
 
     let totalCost = 0;
@@ -120,8 +120,8 @@ export class ResupplyService {
     resupply.productQuantity = productQuantity;
     resupply.products =
       await this.resupplyDetailsRepository.save(resupplyDetails);
-
-    return this.resupplyRepository.save(resupply);
+    const resupplySaved = await this.resupplyRepository.save(resupply);
+    return { resupplySaved, branch };
   }
 
   async delete(id: string): Promise<void> {
