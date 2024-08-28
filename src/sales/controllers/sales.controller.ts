@@ -191,8 +191,16 @@ export class SalesController {
   @Roles(Role.ADMIN)
   @Post('money/withdraw')
   async withdrawCash(@Body() createCashWithdrawalDto: CreateCashWithdrawalDto) {
-    const { amount, concept, branchId, userId } = createCashWithdrawalDto;
-    return this.salesService.withdrawCash(amount, concept, branchId, userId);
+    const { amount, concept, branchId, userId, type, withdrawalMethod } =
+      createCashWithdrawalDto;
+    return this.salesService.withdrawCash(
+      amount,
+      concept,
+      branchId,
+      userId,
+      type,
+      withdrawalMethod,
+    );
   }
 
   @ApiBearerAuth()

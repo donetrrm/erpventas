@@ -19,8 +19,14 @@ export class CashWithdrawal {
   @Column()
   concept: string;
 
+  @Column()
+  type: string;
+
   @Column({ type: 'float' })
   newTotal: number;
+
+  @Column()
+  withdrawalMethod: string;
 
   @ManyToOne(() => User, { eager: true })
   user: User;

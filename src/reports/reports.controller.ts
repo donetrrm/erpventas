@@ -92,4 +92,11 @@ export class ReportsController {
   getSalesByDayAndBranch(@Query() params: FilterByDatesAndBranchDto) {
     return this.reportsService.getSalesByDatesAndBranch(params);
   }
+
+  @Get('/financial')
+  @ApiOperation({ summary: 'Get financial report' })
+  @ApiBearerAuth()
+  getFinancialReport(@Query() params: FilterByDatesAndBranchDto) {
+    return this.reportsService.getFinancialReport(params);
+  }
 }

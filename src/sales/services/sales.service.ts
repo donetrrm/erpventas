@@ -229,6 +229,8 @@ export class SalesService {
     concept: string,
     branchId: string,
     userId: string,
+    type: string,
+    withdrawalMethod: string,
   ) {
     const user = await this.getUser(userId);
     const branchCash = await this.getBranchCash(branchId);
@@ -243,7 +245,9 @@ export class SalesService {
     const withdrawal = this.cashWithdrawalRepository.create({
       amount,
       concept,
+      type,
       newTotal,
+      withdrawalMethod,
       user,
       branch: { id: branchId },
       createdAt: new Date(),

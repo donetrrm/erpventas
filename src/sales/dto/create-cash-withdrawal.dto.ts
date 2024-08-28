@@ -16,6 +16,22 @@ export class CreateCashWithdrawalDto {
   concept: string;
 
   @ApiProperty({
+    description: 'Tipo de retiro de caja',
+    example: 'GASTO | PROVEEDORES | OTRO',
+  })
+  @IsString()
+  @IsNotEmpty()
+  type: string;
+
+  @ApiProperty({
+    description: 'Método de retiro de caja',
+    example: 'EFECTIVO | TRANSFERENCIA',
+  })
+  @IsString()
+  @IsNotEmpty()
+  withdrawalMethod: string;
+
+  @ApiProperty({
     description: 'ID de la sucursal',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
