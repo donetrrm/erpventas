@@ -7,6 +7,7 @@ import { SaleDetails } from 'src/sales/entities/sale-details.entity';
 import { Sale } from 'src/sales/entities/sale.entity';
 import { Resupply } from 'src/branches/entities/resupply.entity';
 import { CashWithdrawal } from 'src/sales/entities/cash-withdrawal.entity';
+import { BranchCash } from 'src/sales/entities/branch-cash.entity';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { CashWithdrawal } from 'src/sales/entities/cash-withdrawal.entity';
       ProductBranch,
       Resupply,
       CashWithdrawal,
+      BranchCash,
     ]),
   ],
   controllers: [ReportsController],

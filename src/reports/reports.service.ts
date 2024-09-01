@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SaleDetails } from 'src/sales/entities/sale-details.entity';
 import { Sale } from 'src/sales/entities/sale.entity';
@@ -6,6 +6,8 @@ import { Between, Repository } from 'typeorm';
 import { FilterByDatesAndBranchDto } from './dto/reports.dto';
 import { Resupply } from 'src/branches/entities/resupply.entity';
 import { CashWithdrawal } from 'src/sales/entities/cash-withdrawal.entity';
+import { BranchCash } from 'src/sales/entities/branch-cash.entity';
+import { date } from 'joi';
 
 @Injectable()
 export class ReportsService {
@@ -17,6 +19,8 @@ export class ReportsService {
     private resupplyRepository: Repository<Resupply>,
     @InjectRepository(CashWithdrawal)
     private cashWithdrawalRepository: Repository<CashWithdrawal>,
+    @InjectRepository(BranchCash)
+    private branchCashRepository: Repository<BranchCash>,
   ) {}
 
   async getSalesByDatesAndBranch(filter: FilterByDatesAndBranchDto) {
@@ -154,5 +158,38 @@ export class ReportsService {
       totalExpenses,
       balanceSheet,
     };
+  }
+
+  async getDashboardSalesBranchCash(branchId: string) {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 1);
+
+    let total = 0;
+    const branchSales = await this.saleRepository.find({
+      order: { createAt: 'ASC' },
+      where: {
+        branch: { id: branchId },
+        createAt: Between(start, end),
+      },
+    });
+
+    const branchCash = await this.branchCashRepository.findOne({
+      where: { branch: { id: branchId } },
+    });
+
+    if (branchCash) {
+      for (const sale of branchSales) {
+        total += sale.total;
+      }
+    }
+    const dashboard = {
+      date: start.toLocaleDateString(),
+      total: total,
+      branchCash: branchCash.totalCash,
+    };
+
+    return dashboard;
   }
 }
