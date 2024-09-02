@@ -8,6 +8,7 @@ import {
   Put,
   UseGuards,
   Query,
+  Patch,
 } from '@nestjs/common';
 import { SalesService } from '../services/sales.service';
 import { CreateSaleDto, UpdateSaleDto } from '../dto/sale.dtos';
@@ -26,6 +27,7 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { GetSalesCutDto } from '../dto/get-sales-cut.dto';
 import { CreateCashStartDto } from '../dto/create-cash-start.dto';
 import { CreateCashWithdrawalDto } from '../dto/create-cash-withdrawal.dto';
+import { CreatePromotionSaleDto } from '../dto/create-sale-promotion.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth('jwt')
@@ -225,5 +227,19 @@ export class SalesController {
   @Get('money/total')
   async getTotalCash(@Query('branchId') branchId: string) {
     return this.salesService.getTotalCash(branchId);
+  }
+
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @Post('promotions')
+  @ApiOperation({ summary: 'Method to create a promotion sale.' })
+  @ApiCreatedResponse({
+    description: 'Promotion sale created',
+    type: CreatePromotionSaleDto,
+  })
+  async createPromotionSale(
+    @Body() createPromotionSaleDto: CreatePromotionSaleDto,
+  ) {
+    return this.salesService.createSalePromotion(createPromotionSaleDto);
   }
 }

@@ -8,6 +8,7 @@ import { Sale } from 'src/sales/entities/sale.entity';
 import { Resupply } from 'src/branches/entities/resupply.entity';
 import { CashWithdrawal } from 'src/sales/entities/cash-withdrawal.entity';
 import { BranchCash } from 'src/sales/entities/branch-cash.entity';
+import { Promotion } from 'src/promotions/entities/promotion.entity';
 
 @Module({
   imports: [

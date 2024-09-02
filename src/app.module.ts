@@ -12,6 +12,7 @@ import * as Joi from 'joi';
 import { AuthModule } from './auth/auth.module';
 import { ReportsModule } from './reports/reports.module';
 import { ResupplyModule } from './resupply/resupply.module';
+import { PromotionsModule } from './promotions/promotions.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { ResupplyModule } from './resupply/resupply.module';
     AuthModule,
     ReportsModule,
     ResupplyModule,
+    PromotionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

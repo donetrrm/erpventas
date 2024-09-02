@@ -6,7 +6,7 @@ import {
 import { CreateSaleDto, UpdateSaleDto } from '../dto/sale.dtos';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Sale } from '../entities/sale.entity';
-import { Between, Repository } from 'typeorm';
+import { Between, In, Repository } from 'typeorm';
 import { SaleDetails } from '../entities/sale-details.entity';
 import { ProductBranch } from 'src/products/entities/products-branch.entity';
 import { ISaleDetailsProduct } from '../interfaces/sale-details-product.interface';
@@ -17,6 +17,8 @@ import { GetSalesCutDto } from '../dto/get-sales-cut.dto';
 import { CashStart } from '../entities/cash-start.entity';
 import { CashWithdrawal } from '../entities/cash-withdrawal.entity';
 import { BranchCash } from '../entities/branch-cash.entity';
+import { Promotion } from 'src/promotions/entities/promotion.entity';
+import { CreatePromotionSaleDto } from '../dto/create-sale-promotion.dto';
 
 @Injectable()
 export class SalesService {
@@ -35,6 +37,8 @@ export class SalesService {
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Branch) private branchRepository: Repository<Branch>,
     @InjectRepository(Product) private productRepository: Repository<Product>,
+    @InjectRepository(Promotion)
+    private promotionRepository: Repository<Promotion>,
   ) {}
   async create(createSaleDto: CreateSaleDto) {
     const productsFormated: ISaleDetailsProduct[] = JSON.parse(
@@ -324,5 +328,81 @@ export class SalesService {
     }
 
     return branchCash;
+  }
+
+  async createSalePromotion(createSaleDto: CreatePromotionSaleDto) {
+    const { branchId, userId, promotionId, ...saleData } = createSaleDto;
+
+    const promotion = await this.promotionRepository.findOne({
+      where: { id: promotionId },
+      relations: ['promotionDetails', 'promotionDetails.product'],
+    });
+
+    if (!promotion) {
+      throw new NotFoundException(
+        `Promotion with ID ${promotionId} not found.`,
+      );
+    }
+
+    if (promotion.stock <= 0) {
+      throw new NotFoundException('Promotion out of stock.');
+    }
+
+    const branch = await this.branchRepository.findOneBy({ id: branchId });
+    const user = await this.userRepository.findOneBy({ id: userId });
+
+    if (!branch || !user) {
+      throw new NotFoundException('Branch or User not found.');
+    }
+    const productsFormated = await Promise.all(
+      promotion.promotionDetails.map(async (detail) => {
+        const productBranch = await this.productBranchRepository.findOne({
+          where: { productId: detail.product.id, branchId },
+        });
+
+        if (!productBranch) {
+          throw new NotFoundException(
+            `Product ${detail.product.id} not found in branch ${branchId}.`,
+          );
+        }
+        console.log(productBranch.stock, detail.quantity);
+        if (productBranch.stock < detail.quantity) {
+          throw new NotFoundException(
+            `Insufficient stock for product ${detail.product.id} in branch ${branchId}.`,
+          );
+        }
+
+        productBranch.stock -= detail.quantity;
+        await this.productBranchRepository.save(productBranch);
+        return {
+          product: detail.product,
+          quantity: detail.quantity,
+          price: 0,
+          total: 0,
+          profit: 0,
+        };
+      }),
+    );
+
+    const saleDetails = await this.saleDetailsRepository.save(productsFormated);
+
+    const sale = this.saleRepository.create({
+      ...saleData,
+      total: promotion.price,
+      branch,
+      user,
+      products: saleDetails,
+    });
+
+    const newSale = await this.saleRepository.save(sale);
+
+    promotion.stock -= 1;
+    await this.promotionRepository.save(promotion);
+
+    const branchCash = await this.getBranchCash(branchId);
+    branchCash.totalCash += promotion.price;
+    await this.branchCashRepository.save(branchCash);
+
+    return newSale;
   }
 }

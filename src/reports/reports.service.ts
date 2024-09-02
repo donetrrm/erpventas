@@ -8,6 +8,7 @@ import { Resupply } from 'src/branches/entities/resupply.entity';
 import { CashWithdrawal } from 'src/sales/entities/cash-withdrawal.entity';
 import { BranchCash } from 'src/sales/entities/branch-cash.entity';
 import { date } from 'joi';
+import { Promotion } from 'src/promotions/entities/promotion.entity';
 
 @Injectable()
 export class ReportsService {
@@ -49,6 +50,8 @@ export class ReportsService {
     let totalSuppliersExpenses = 0;
     let totalOtherExpenses = 0;
     let totalExpenses = 0;
+    let promotionCost = 0;
+    let promotionProfit = 0;
 
     const start = new Date(filter.start);
     start.setHours(0, 0, 0, 0);
@@ -67,29 +70,62 @@ export class ReportsService {
       const saleDetails = await this.saleDetailsRepository.find({
         where: { sale: { id: sale.id } },
       });
+      let isPromotion = false;
+      let totalCountedPromotion = false;
       for (const detail of saleDetails) {
-        generalTotal += detail.total;
-        totalCost += detail.product.cost * detail.quantity;
-        totalProfit += detail.profit;
-
-        if (sale.paymentType === 'EFECTIVO') {
-          totalCash += detail.total;
+        if (detail.price === 0 && detail.profit === 0 && detail.total === 0) {
+          isPromotion = true;
+          if (!totalCountedPromotion) {
+            generalTotal += sale.total;
+            if (sale.paymentType === 'EFECTIVO') {
+              totalCash += sale.total;
+            } else {
+              totalTransfer += sale.total;
+            }
+            totalCountedPromotion = true;
+          }
+          promotionCost += detail.product.cost * detail.quantity;
+          totalCost += detail.product.cost * detail.quantity;
+          totalProfit = generalTotal - totalCost;
         } else {
-          totalTransfer += detail.total;
-        }
+          generalTotal += detail.total;
+          totalCost += detail.product.cost * detail.quantity;
+          totalProfit += detail.profit;
 
+          if (sale.paymentType === 'EFECTIVO') {
+            totalCash += detail.total;
+          } else {
+            totalTransfer += detail.total;
+          }
+
+          salesReport.push({
+            id: detail.id,
+            date: detail.createAt,
+            name: detail.product.name,
+            quantity: detail.quantity,
+            payMethod: sale.paymentType,
+            individualPurchasePrice: detail.product.cost,
+            totalPurchasePrice: detail.product.cost * detail.quantity,
+            individualProfit: detail.product.price - detail.product.cost,
+            totalProfit: detail.profit,
+            individualSalePrice: detail.product.price,
+            total: detail.total,
+          });
+        }
+      }
+      if (isPromotion) {
         salesReport.push({
-          id: detail.id,
-          date: detail.createAt,
-          name: detail.product.name,
-          quantity: detail.quantity,
+          id: sale.id,
+          date: sale.createAt,
+          name: `PROMOTION SALE`,
+          quantity: 1,
           payMethod: sale.paymentType,
-          individualPurchasePrice: detail.product.cost,
-          totalPurchasePrice: detail.product.cost * detail.quantity,
-          individualProfit: detail.product.price - detail.product.cost,
-          totalProfit: detail.profit,
-          individualSalePrice: detail.product.price,
-          total: detail.total,
+          individualPurchasePrice: promotionCost,
+          totalPurchasePrice: promotionCost,
+          individualProfit: sale.total - promotionCost,
+          totalProfit: sale.total - promotionCost,
+          individualSalePrice: sale.total,
+          total: sale.total,
         });
       }
     }

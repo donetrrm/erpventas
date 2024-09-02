@@ -11,6 +11,7 @@ import { ProductBranch } from 'src/products/entities/products-branch.entity';
 import { BranchCash } from './entities/branch-cash.entity';
 import { CashStart } from './entities/cash-start.entity';
 import { CashWithdrawal } from './entities/cash-withdrawal.entity';
+import { Promotion } from 'src/promotions/entities/promotion.entity';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CashWithdrawal } from './entities/cash-withdrawal.entity';
       BranchCash,
       CashStart,
       CashWithdrawal,
+      Promotion,
     ]),
   ],
   controllers: [SalesController],
